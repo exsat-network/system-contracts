@@ -3,6 +3,7 @@
 namespace eosio {
 
 void mock::deposit(const name& owner, const asset& amount) {
+   require_auth(owner);
    action(
       permission_level{ owner, "active"_n },
       "eosio"_n,
@@ -12,6 +13,7 @@ void mock::deposit(const name& owner, const asset& amount) {
 }
 
 void mock::withdraw(const name& owner, const asset& amount) {
+   require_auth(owner);
    action(
       permission_level{ owner, "active"_n },
       "eosio"_n,
@@ -21,6 +23,7 @@ void mock::withdraw(const name& owner, const asset& amount) {
 }
 
 void mock::unstaketorex(const name& owner, const name& receiver, const asset& from_net, const asset& from_cpu) {
+   require_auth(owner);
    action(
       permission_level{ owner, "active"_n },
       "eosio"_n,
@@ -30,6 +33,7 @@ void mock::unstaketorex(const name& owner, const name& receiver, const asset& fr
 }
 
 void mock::claimrewards(const name owner) {
+   require_auth(owner);
    action(
       permission_level{ owner, "active"_n },
       "eosio"_n,
