@@ -1,0 +1,10 @@
+<h1 class="contract">forward</h1>
+
+---
+spec_version: "0.2.0"
+title: Action forwarder
+summary: 'Forwards a given action and args to eosio from the contract'
+icon: @ICON_BASE_URL@/@ADMIN_ICON_URI@
+---
+
+Forwards a given action and args to eosio from the contract
