@@ -50,13 +50,13 @@ public:
          bpay_abi_ser.set_abi(abi, abi_serializer::create_yield_function(abi_serializer_max_time));
       }
 
-      set_code( "core.vaulta"_n, contracts::forwarder_wasm());
-      set_abi( "core.vaulta"_n, contracts::forwarder_abi().data() );
+      set_code( "core.vaulta"_n, contracts::vaulta_wasm());
+      set_abi( "core.vaulta"_n, contracts::vaulta_abi().data() );
       {
          const auto& accnt = control->db().get<account_object,by_name>( "core.vaulta"_n );
          abi_def abi;
          BOOST_REQUIRE_EQUAL(abi_serializer::to_abi(accnt.abi, abi), true);
-         vaulta_forwarder_abi_ser.set_abi(abi, abi_serializer::create_yield_function(abi_serializer_max_time));
+         vaulta_abi_ser.set_abi(abi, abi_serializer::create_yield_function(abi_serializer_max_time));
       }
       produce_block();
 
@@ -64,6 +64,13 @@ public:
                                                 config::system_account_name,  mutable_variant_object()
                                                 ("account", "core.vaulta")
                                                 ("is_priv", 1)
+      );
+
+      // initialize
+      auto init_trace = validating_tester::push_action("core.vaulta"_n, "init"_n,
+                                                "core.vaulta"_n,  mutable_variant_object()
+                                                ("version", 0)
+                                                ("maximum_supply", vaulta_sym::from_string("2100000000.0000") )
       );
 
 
@@ -686,7 +693,7 @@ public:
          act.account = "core.vaulta"_n;
          act.name = name;
          act.data = abi_ser.variant_to_binary(
-            vaulta_forwarder_abi_ser.get_action_type(name),
+            vaulta_abi_ser.get_action_type(name),
             data,
             abi_serializer::create_yield_function(abi_serializer_max_time) );
 
@@ -1235,6 +1242,12 @@ public:
       return get_balance( account_name(act), balance_symbol );
    }
 
+   asset get_vaulta_balance( const account_name& act ) {
+      symbol balance_symbol = symbol::from_string("4,A");
+      vector<char> data = get_row_by_account( "core.vaulta"_n, act, "accounts"_n, account_name(balance_symbol.to_symbol_code().value) );
+      return data.empty() ? asset(0, balance_symbol) : vaulta_abi_ser.binary_to_variant("account", data, abi_serializer::create_yield_function(abi_serializer_max_time))["balance"].as<asset>();
+   }
+
    fc::variant get_total_stake( const account_name& act ) {
       vector<char> data = get_row_by_account( config::system_account_name, act, "userres"_n, act );
       return data.empty() ? fc::variant() : abi_ser.binary_to_variant( "user_resources", data, abi_serializer::create_yield_function(abi_serializer_max_time) );
@@ -1597,7 +1610,7 @@ public:
    abi_serializer abi_ser;
    abi_serializer token_abi_ser;
    abi_serializer bpay_abi_ser;
-   abi_serializer vaulta_forwarder_abi_ser;
+   abi_serializer vaulta_abi_ser;
 };
 
 inline fc::mutable_variant_object voter( account_name acct ) {
