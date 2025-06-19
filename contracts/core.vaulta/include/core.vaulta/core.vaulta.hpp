@@ -11,7 +11,7 @@ namespace eosio {
          using name   = eosio::name;
          using asset  = eosio::asset;
          using symbol = eosio::symbol;
-         static constexpr symbol EOS = symbol("TST", 4);
+         static constexpr symbol EOS = symbol("EOS", 4);
 
          struct [[eosio::table("accounts"), eosio::contract("core.vaulta")]] account {
             asset    balance;
