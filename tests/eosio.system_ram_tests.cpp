@@ -8,6 +8,7 @@
 #include <sstream>
 #include <fc/log/logger.hpp>
 #include <eosio/chain/exceptions.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "eosio.system_tester.hpp"
 
@@ -76,42 +77,43 @@ BOOST_FIXTURE_TEST_CASE( buy_sell_ram_validate, eosio_system_tester ) try {
    transfer( config::system_account_name, bob, core_sym::from_string("100.0000"), config::system_account_name );
    BOOST_REQUIRE_EQUAL( success(), buyrambytes( bob, bob, 10000 ) );
 
-   std::string expected_buyrambytes_return_data = R"=====(
+   std::string expected_buyrambytes_return_data = boost::ireplace_all_copy<std::string>(R"=====(
 {
    "payer": "alice",
    "receiver": "alice",
-   "quantity": ")=====" + core_sym::from_string("0.1462").to_string() + R"=====(",
+   "quantity": "0.1462 TST",
    "bytes_purchased": 9991,
    "ram_bytes": 17983,
-   "fee": ")=====" + core_sym::from_string("0.0008").to_string() + R"=====("
+   "fee": "0.0008 TST"
 }
-)=====";
+)=====", "TST", CORE_SYM_NAME);
+
    validate_buyrambytes_return(alice, alice, 10000,
                                "action_return_buyram", expected_buyrambytes_return_data.c_str() );
 
-   std::string expected_sellram_return_data = R"=====(
+   std::string expected_sellram_return_data = boost::ireplace_all_copy<std::string>(R"=====(
 {
    "account": "alice",
-   "quantity": ")=====" + core_sym::from_string("0.1455").to_string() + R"=====(",
+   "quantity": "0.1455 TST",
    "bytes_sold": 10000,
    "ram_bytes": 7983,
-   "fee": ")=====" + core_sym::from_string("0.0008").to_string() + R"=====("
+   "fee": "0.0008 TST"
 }
-)=====";
+)=====", "TST", CORE_SYM_NAME);
    validate_sellram_return(alice, 10000,
                         "action_return_sellram", expected_sellram_return_data.c_str() );
 
-   std::string expected_buyram_return_data = R"=====(
+   std::string expected_buyram_return_data = boost::ireplace_all_copy<std::string>(R"=====(
 {
    "payer": "bob",
    "receiver": "alice",
-   "quantity": ")=====" + core_sym::from_string("2.0000").to_string() + R"=====(",
+   "quantity": "2.0000 TST",
    "bytes_purchased": 136750,
    "ram_bytes": 144733,
-   "fee": ")=====" + core_sym::from_string("0.0100").to_string() + R"=====("
+   "fee": "0.0100 TST"
 
 }
-)=====";
+)=====", "TST", CORE_SYM_NAME);
    validate_buyram_return(bob, alice, core_sym::from_string("2.0000"),
                           "action_return_buyram", expected_buyram_return_data.c_str() );
 } FC_LOG_AND_RETHROW()
@@ -129,16 +131,16 @@ BOOST_FIXTURE_TEST_CASE( ram_burn, eosio_system_tester ) try {
    BOOST_REQUIRE_EQUAL( success(), buyrambytes( alice, alice, 10000 ) );
    BOOST_REQUIRE_EQUAL( success(), buyrambytes( alice, null_account, 10000 ) );
 
-   std::string expected_buyramself_return_data = R"=====(
+   std::string expected_buyramself_return_data = boost::ireplace_all_copy<std::string>(R"=====(
 {
    "payer": "bob",
    "receiver": "bob",
-   "quantity": ")=====" + core_sym::from_string("10.0000").to_string() + R"=====(",
+   "quantity": "10.0000 TST",
    "bytes_purchased": 683747,
    "ram_bytes": 691739,
-   "fee": ")=====" + core_sym::from_string("0.0500").to_string() + R"=====("
+   "fee": "0.0500 TST"
 }
-)=====";
+)=====", "TST", CORE_SYM_NAME);
    validate_buyramself_return(bob, core_sym::from_string("10.0000"),
                               "action_return_buyram", expected_buyramself_return_data.c_str() ) ;
 
@@ -152,16 +154,16 @@ BOOST_FIXTURE_TEST_CASE( ram_burn, eosio_system_tester ) try {
    BOOST_REQUIRE_EQUAL( alice_before_burn - 3000, alice_after_burn );
    BOOST_REQUIRE_EQUAL( null_before_burn + 3000, null_after_burn );
 
-   std::string expected_ramburn_return_data = R"=====(
+   std::string expected_ramburn_return_data = boost::ireplace_all_copy<std::string>(R"=====(
 {
    "from": "bob",
    "to": "eosio.null",
    "bytes": 1,
    "from_ram_bytes": 691738,
    "to_ram_bytes": 12992,
-   "fee": ")=====" + core_sym::from_string("1.0000").to_string() + R"=====("
+   "fee": "1.0000 TST"
 }
-)=====";
+)=====", "TST", CORE_SYM_NAME);
    validate_ramburn_return(bob, 1, "burn RAM memo",
                            "action_return_ramtransfer", expected_ramburn_return_data.c_str() );
 
@@ -173,16 +175,16 @@ BOOST_FIXTURE_TEST_CASE( buy_ram_burn, eosio_system_tester ) try {
    const account_name alice = accounts[0];
    const account_name null_account = "eosio.null"_n;
 
-   std::string expected_buyramburn_return_data = R"=====(
+   std::string expected_buyramburn_return_data = boost::ireplace_all_copy<std::string>(R"=====(
 {
    "payer": "alice",
    "receiver": "alice",
-   "quantity": ")=====" + core_sym::from_string("1.0000").to_string() + R"=====(",
+   "quantity": "1.0000 TST",
    "bytes_purchased": 68374,
    "ram_bytes": 86357,
-   "fee": ")=====" + core_sym::from_string("0.0050").to_string() + R"=====("
+   "fee": "0.0050 TST"
 }
-)=====";
+)=====", "TST", CORE_SYM_NAME);
 
    create_accounts_with_resources( accounts );
    transfer( config::system_account_name, alice, core_sym::from_string("100.0000"), config::system_account_name );
@@ -219,16 +221,16 @@ BOOST_FIXTURE_TEST_CASE( buy_ram_self, eosio_system_tester ) try {
    const uint64_t alice_after = get_total_stake( alice )["ram_bytes"].as_uint64();
    BOOST_REQUIRE_EQUAL( alice_before + 68375, alice_after );
 
-   std::string expected_buyramself_return_data = R"=====(
+   std::string expected_buyramself_return_data = boost::ireplace_all_copy<std::string>(R"=====(
 {
    "payer": "alice",
    "receiver": "alice",
-   "quantity": ")=====" + core_sym::from_string("2.0000").to_string() + R"=====(",
+   "quantity": "2.0000 TST",
    "bytes_purchased": 136750,
    "ram_bytes": 213117,
-   "fee": ")=====" + core_sym::from_string("0.0100").to_string() + R"=====("
+   "fee": "0.0100 TST"
 }
-)=====";
+)=====", "TST", CORE_SYM_NAME);
 
    validate_buyramself_return(alice, core_sym::from_string("2.0000"),
                        "action_return_buyram", expected_buyramself_return_data.c_str() );
@@ -258,7 +260,7 @@ BOOST_FIXTURE_TEST_CASE( ramgift, eosio_system_tester ) try {
    produce_block(fc::days(1));
    produce_block();
 
-   create_account_with_resources("gft"_n, "gifter"_n, 1'000'000u);  // create gft account with plenty of RAM    
+   create_account_with_resources("gft"_n, "gifter"_n, 1'000'000u);  // create gft account with plenty of RAM
    transfer("eosio", "gft", core_sym::from_string("1000.0000"));    // and currency
    stake_with_transfer("eosio", "gft", net, cpu);
 
@@ -266,7 +268,7 @@ BOOST_FIXTURE_TEST_CASE( ramgift, eosio_system_tester ) try {
    // ---------------------------------------------------------
    static constexpr uint32_t initial_ram_gift = 5000u;
    const account_name bob = "bob.gft"_n;
-   
+
    create_account_with_resources("bob.gft"_n, "gft"_n, 0, initial_ram_gift);
    transfer("eosio", "bob.gft", core_sym::from_string("1000.0000"));
    stake_with_transfer("eosio", "bob.gft", net, cpu);
@@ -293,7 +295,7 @@ BOOST_FIXTURE_TEST_CASE( ramgift, eosio_system_tester ) try {
    // Now bob holds only gifted ram
    // -----------------------------
    BOOST_REQUIRE_EQUAL(initial_ram_gift, (uint64_t)get_total_stake(bob)["ram_bytes"].as_int64());
-   
+
    // bob should not be able to ungift the ram gift as he is using it and has no extra RAM
    // ------------------------------------------------------------------------------------
    BOOST_REQUIRE_EQUAL(ungiftram(bob, "gft"_n, ""),
@@ -308,7 +310,7 @@ BOOST_FIXTURE_TEST_CASE( ramgift, eosio_system_tester ) try {
    BOOST_REQUIRE_EQUAL(giftram("gifter"_n, bob, 1, ""),
       error("assertion failure with message: A single RAM gifter is allowed at any one time per account, currently holding RAM gifted by: gft"));
 
-   // To return the gift, bob needs 3574 bytes. Let's buy 3000, so with the 1400 we'll have enough 
+   // To return the gift, bob needs 3574 bytes. Let's buy 3000, so with the 1400 we'll have enough
    // to return the gift and also do a 1 byte ramtransfer
    // ---------------------------------------------------------------------------------------------
    BOOST_REQUIRE_EQUAL(buyrambytes(bob, bob, 3'000u), success());
@@ -354,8 +356,8 @@ BOOST_FIXTURE_TEST_CASE( ramgift, eosio_system_tester ) try {
    BOOST_REQUIRE_EQUAL(ungiftram(dan, "gft"_n, ""), success());     // don't forget to return dan's gift
    BOOST_REQUIRE_EQUAL(ramburn(bob, (uint64_t)get_total_stake(bob)["ram_bytes"].as_int64() - 5000u, ""), success());
    BOOST_REQUIRE_EQUAL(ramburn(dan, (uint64_t)get_total_stake(dan)["ram_bytes"].as_int64() - 5000u, ""), success());
-   
-   
+
+
    BOOST_REQUIRE_EQUAL((uint64_t)get_total_stake(bob)["ram_bytes"].as_int64(), 5000u);
    BOOST_REQUIRE_EQUAL((uint64_t)get_total_stake(dan)["ram_bytes"].as_int64(), 5000u);
 

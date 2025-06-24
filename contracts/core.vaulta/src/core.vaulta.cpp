@@ -120,42 +120,22 @@ void core::credit_eos_to(const name& account, const asset& quantity) {
 
 void core::deposit(const name& owner, const asset& amount) {
    require_auth(owner);
-   action(
-      permission_level{ owner, "active"_n },
-      "eosio"_n,
-      "deposit"_n,
-      std::make_tuple(owner, amount)
-   ).send();
+   deposit_action("eosio"_n, {{owner, "active"_n}}).send(owner, amount);
 }
 
 void core::withdraw(const name& owner, const asset& amount) {
    require_auth(owner);
-   action(
-      permission_level{ owner, "active"_n },
-      "eosio"_n,
-      "withdraw"_n,
-      std::make_tuple(owner, amount)
-   ).send();
+   withdraw_action("eosio"_n, {{owner, "active"_n}}).send(owner, amount);
 }
 
 void core::unstaketorex(const name& owner, const name& receiver, const asset& from_net, const asset& from_cpu) {
    require_auth(owner);
-   action(
-      permission_level{ owner, "active"_n },
-      "eosio"_n,
-      "unstaketorex"_n,
-      std::make_tuple(owner, receiver, from_net, from_cpu)
-   ).send();
+   unstaketorex_action("eosio"_n, {{owner, "active"_n}}).send(owner, receiver, from_net, from_cpu);
 }
 
 void core::claimrewards(const name owner) {
    require_auth(owner);
-   action(
-      permission_level{ owner, "active"_n },
-      "eosio"_n,
-      "claimrewards"_n,
-      std::make_tuple(owner)
-   ).send();
+   claimrewards_action("eosio"_n, {{owner, "active"_n}}).send(owner);
 }
 
 } /// namespace eosio
