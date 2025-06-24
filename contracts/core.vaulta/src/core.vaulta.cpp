@@ -45,8 +45,8 @@ void core::transfer(const name& from, const name& to, const asset& quantity, con
    require_recipient(from);
    require_recipient(to);
 
-   // If `from` is sending XYZ tokens to this contract
-   // they are swapping from XYZ to EOS
+   // If `from` is sending $A tokens to this contract
+   // they are swapping from $A to EOS
    if (to == get_self()) {
       check(quantity.symbol == get_token_symbol(), "Wrong token used");
       credit_eos_to(from, quantity);
@@ -93,7 +93,7 @@ void core::on_transfer(const name& from, const name& to, const asset& quantity, 
    check(quantity.amount > 0, "Swap amount must be greater than 0");
 
    // Ignore for system accounts, otherwise when unstaking or selling ram this will swap EOS for
-   // XYZ and credit them to the sending account which will lock those tokens.
+   // $A and credit them to the sending account which will lock those tokens.
    if (from == "eosio.ram"_n)
       return;
    if (from == "eosio.stake"_n)
