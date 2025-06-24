@@ -29,6 +29,7 @@ The collection of system contracts consists of the following individual contract
    + An auction for bidding for premium account names.
 * [multisig contract](contracts/eosio.msig/include/eosio.msig/eosio.msig.hpp): A contract that enables proposing Antelope transactions on the blockchain, collecting authorization approvals for many accounts, and then executing the actions within the transaction after authorization requirements of the transaction have been reached. (Note: this contract must be deployed to a privileged account.)
 * [wrap contract](contracts/eosio.wrap/include/eosio.wrap/eosio.wrap.hpp): A contract that wraps around any Antelope transaction and allows for executing its actions without needing to satisfy the authorization requirements of the transaction. If used, the permissions of the account hosting this contract should be configured to only allow highly trusted parties (e.g. the operators of the blockchain) to have the ability to execute its actions. (Note: this contract must be deployed to a privileged account.)
+* [core.vaulta](contracts/core.vaulta/include/core.vaulta/core.vaulta.hpp): A contract for the Vaulta (`$A`) token and system forwarding actions that allows using the core contract with the `$A` token. (Note: This is currently a mock contract until the [full contract](https://github.com/VaultaFoundation/vaulta-system-contract) gets merged in.)
 
 ## Repository organization
 

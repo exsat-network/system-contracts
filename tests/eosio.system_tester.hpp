@@ -20,12 +20,14 @@ namespace eosio_system {
 class eosio_system_tester : public validating_tester {
 public:
 
+   static constexpr account_name vaulta_account_name = "core.vaulta"_n;
+
    void basic_setup() {
       produce_block();
 
       create_accounts({ "eosio.token"_n, "eosio.ram"_n, "eosio.ramfee"_n, "eosio.stake"_n,
                "eosio.bpay"_n, "eosio.vpay"_n, "eosio.saving"_n, "eosio.names"_n,
-               "eosio.rex"_n, "eosio.fees"_n, "core.vaulta"_n });
+               "eosio.rex"_n, "eosio.fees"_n, vaulta_account_name });
 
 
       produce_blocks( 100 );
@@ -50,10 +52,10 @@ public:
          bpay_abi_ser.set_abi(abi, abi_serializer::create_yield_function(abi_serializer_max_time));
       }
 
-      set_code( "core.vaulta"_n, contracts::vaulta_wasm());
-      set_abi( "core.vaulta"_n, contracts::vaulta_abi().data() );
+      set_code( vaulta_account_name, contracts::vaulta_wasm());
+      set_abi( vaulta_account_name, contracts::vaulta_abi().data() );
       {
-         const auto& accnt = control->db().get<account_object,by_name>( "core.vaulta"_n );
+         const auto& accnt = control->db().get<account_object,by_name>( vaulta_account_name );
          abi_def abi;
          BOOST_REQUIRE_EQUAL(abi_serializer::to_abi(accnt.abi, abi), true);
          vaulta_abi_ser.set_abi(abi, abi_serializer::create_yield_function(abi_serializer_max_time));
@@ -62,13 +64,13 @@ public:
 
       auto trace = validating_tester::push_action(config::system_account_name, "setpriv"_n,
                                                 config::system_account_name,  mutable_variant_object()
-                                                ("account", "core.vaulta")
+                                                ("account", vaulta_account_name)
                                                 ("is_priv", 1)
       );
 
       // initialize
-      auto init_trace = validating_tester::push_action("core.vaulta"_n, "init"_n,
-                                                "core.vaulta"_n,  mutable_variant_object()
+      auto init_trace = validating_tester::push_action(vaulta_account_name, "init"_n,
+                                                vaulta_account_name,  mutable_variant_object()
                                                 ("version", 0)
                                                 ("maximum_supply", vaulta_sym::from_string("2100000000.0000") )
       );
@@ -690,7 +692,7 @@ public:
 
    action_result push_vaulta_action( const account_name& signer, const action_name &name, const variant_object &data, bool auth = true ) {
          action act;
-         act.account = "core.vaulta"_n;
+         act.account = vaulta_account_name;
          act.name = name;
          act.data = abi_ser.variant_to_binary(
             vaulta_abi_ser.get_action_type(name),
@@ -825,7 +827,7 @@ public:
    }
 
    asset get_unstaketorex_result( const account_name& owner, const account_name& receiver, const asset& from_net, const asset& from_cpu ) {
-      auto trace = base_tester::push_action( "core.vaulta"_n, "unstaketorex"_n, owner, mvo()
+      auto trace = base_tester::push_action( vaulta_account_name, "unstaketorex"_n, owner, mvo()
                                              ("owner", owner)
                                              ("receiver", receiver)
                                              ("from_net", from_net)
@@ -1244,7 +1246,7 @@ public:
 
    asset get_vaulta_balance( const account_name& act ) {
       symbol balance_symbol = symbol::from_string("4,A");
-      vector<char> data = get_row_by_account( "core.vaulta"_n, act, "accounts"_n, account_name(balance_symbol.to_symbol_code().value) );
+      vector<char> data = get_row_by_account( vaulta_account_name, act, "accounts"_n, account_name(balance_symbol.to_symbol_code().value) );
       return data.empty() ? asset(0, balance_symbol) : vaulta_abi_ser.binary_to_variant("account", data, abi_serializer::create_yield_function(abi_serializer_max_time))["balance"].as<asset>();
    }
 
