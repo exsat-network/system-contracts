@@ -500,6 +500,10 @@ namespace eosiosystem {
       EOSLIB_SERIALIZE( refund_request, (owner)(request_time)(net_amount)(cpu_amount) )
    };
 
+   struct [[eosio::table, eosio::contract("eosio.system")]] ram_config {
+      bool disable_sellram = false;
+   };
+   typedef eosio::singleton< "ramconfig"_n, ram_config > ramconfig_singleton;
 
    struct [[eosio::table, eosio::contract("eosio.system")]] gifted_ram {
       name      giftee;
@@ -1426,6 +1430,17 @@ namespace eosiosystem {
           */
          [[eosio::action]]
          action_return_sellram sellram( const name& account, int64_t bytes );
+
+         /**
+          * Set ram configuration action, configures RAM-related system settings.
+          * This action allows the system to enable or disable RAM selling functionality.
+          *
+          * @param disable_sellram - if true, disables the sellram action; if false, enables it.
+          *
+          * @pre Requires authority of the system contract itself.
+          */
+         [[eosio::action]]
+         void setramconfig(bool disable_sellram);
 
          /**
           * Gift ram action, which transfers `bytes` of ram from `gifter` (`from`) to `giftee` (`to`), 
