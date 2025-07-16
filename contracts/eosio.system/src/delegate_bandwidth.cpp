@@ -106,6 +106,12 @@ namespace eosiosystem {
       require_recipient(receiver);
    }
 
+   void system_contract::setramconfig(bool disable_sellram) {
+      require_auth( get_self() );
+      ramconfig_singleton rc(get_self(), get_self().value);
+      rc.set(ram_config{.disable_sellram = disable_sellram}, get_self());
+   }
+
   /**
     *  The system contract now buys and sells RAM allocations at prevailing market prices.
     *  This may result in traders buying RAM today in anticipation of potential shortages
@@ -114,6 +120,11 @@ namespace eosiosystem {
     */
    action_return_sellram system_contract::sellram( const name& account, int64_t bytes ) {
       require_auth( account );
+      ramconfig_singleton rc(get_self(), get_self().value);
+      if (rc.exists()) {
+         check( rc.get().disable_sellram == false, "sellram is disabled");
+      }
+
       update_ram_supply();
       require_recipient(account);
       const int64_t ram_bytes = reduce_ram(account, bytes);
