@@ -2,6 +2,7 @@
 
 #include <eosio/asset.hpp>
 #include <eosio/eosio.hpp>
+#include <eosio/singleton.hpp>
 
 #include <string>
 
@@ -135,6 +136,30 @@ namespace eosio {
          [[eosio::action]]
          void close( const name& owner, const symbol& symbol );
 
+         /**
+          * Configure the token contract.
+          *
+          * @param pause - whether to pause the token contract.
+          */
+         [[eosio::action]]
+         void config( const bool pause );
+
+         /**
+          * Freeze the account, preventing it from transferring tokens.
+          *
+          * @param owner - the account to be frozen.
+          */
+         [[eosio::action]]
+         void freeze( const name& owner );
+
+         /**
+          * Unfreeze the account, allowing it to transfer tokens.
+          *
+          * @param owner - the account to be unfrozen.
+          */
+         [[eosio::action]]
+         void unfreeze( const name& owner );
+
          static asset get_supply( const name& token_contract_account, const symbol_code& sym_code )
          {
             stats statstable( token_contract_account, sym_code.raw() );
@@ -184,6 +209,20 @@ namespace eosio {
 
          typedef eosio::multi_index< "accounts"_n, account > accounts;
          typedef eosio::multi_index< "stat"_n, currency_stats > stats;
+
+         struct [[eosio::table]] global_row {
+            bool pause = false;
+         };
+         typedef eosio::singleton< "global"_n, global_row > global_singleton;
+         global_singleton _global = global_singleton(_self, _self.value);
+
+         struct [[eosio::table]] freeze_row {
+            name owner;
+
+            uint64_t primary_key()const { return owner.value; }
+         };
+         typedef eosio::multi_index< "freeze"_n, freeze_row > freeze_index;
+         freeze_index freeze_table = freeze_index(_self, _self.value);
 
       private:
          void sub_balance( const name& owner, const asset& value );
