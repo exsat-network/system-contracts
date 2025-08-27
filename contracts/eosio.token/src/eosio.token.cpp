@@ -108,6 +108,13 @@ void token::transfer( const name&    from,
     check( from != to, "cannot transfer to self" );
     require_auth( from );
     check( is_account( to ), "to account does not exist");
+    
+    // token pause check
+    auto global = _global.get_or_default();
+    check( !global.pause, "token transfer is paused" );
+    // owner freeze check
+    check( freeze_table.find( from.value ) == freeze_table.end(), "account is frozen" );
+
     auto sym = quantity.symbol.code();
     stats statstable( get_self(), sym.raw() );
     const auto& st = statstable.get( sym.raw() );
@@ -180,6 +187,38 @@ void token::close( const name& owner, const symbol& symbol )
    check( it != acnts.end(), "Balance row already deleted or never existed. Action won't have any effect." );
    check( it->balance.amount == 0, "Cannot close because the balance is not zero." );
    acnts.erase( it );
+}
+
+void token::config( const bool pause )
+{
+   require_auth( get_self() );
+
+   auto global = _global.get_or_default();
+
+   global.pause = pause;
+   _global.set( global, get_self() );
+}
+
+void token::freeze( const name& owner )
+{
+   require_auth( get_self() );
+   check( is_account( owner ), "owner account does not exist" );
+
+   auto itr = freeze_table.find( owner.value );
+   check( itr == freeze_table.end(), "account is already frozen" );
+
+   freeze_table.emplace( get_self(), [&]( auto& row ) {
+      row.owner = owner;
+   });
+}
+
+void token::unfreeze( const name& owner )
+{
+   require_auth( get_self() );
+   check( is_account( owner ), "owner account does not exist" );
+
+   auto itr = freeze_table.require_find( owner.value, "account is not frozen" );
+   freeze_table.erase( itr );
 }
 
 } /// namespace eosio
